@@ -1,12 +1,16 @@
 @echo off
-
 :: Set current directory to the one specified if one is provided
 set CurrentDirectory=%1
 if "%1"=="" (
    set CurrentDirectory=%~pd0
 )
 
-set SourcePath=%CurrentDirectory%..\Source\NotArcane
+:: Find Project Name
+for %%i in (%CurrentDirectory%..\*) do (
+   if "%%~xi"==".uproject" set ProjectName=%%~ni
+)
+
+set SourcePath=%CurrentDirectory%..\Source\%ProjectName%
 set LogPath=%~pd0\Logs
 
 call :CreateLog
