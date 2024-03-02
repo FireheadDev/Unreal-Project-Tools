@@ -1,1 +1,0 @@
-#pragma optimize found in: Private\Widgets\SkillsListWidget.cpp 
