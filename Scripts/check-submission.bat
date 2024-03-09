@@ -2,7 +2,7 @@
 :: Set current directory to the one specified if one is provided
 set CurrentDirectory=%1
 if "%1"=="" (
-   set CurrentDirectory=%~pd0
+   set CurrentDirectory=%~pd0..\
 )
 
 :: Find Project Name
@@ -11,7 +11,8 @@ for %%i in (%CurrentDirectory%..\*) do (
 )
 
 set SourcePath=%CurrentDirectory%..\Source\%ProjectName%
-set LogPath=%~pd0\Logs
+set LogPath=%~pd0..\Logs
+set LogPathFull=LogPath\CheckLog.txt
 
 call :CreateLog
 call :PragmaOptimizeCheck
@@ -27,8 +28,8 @@ if exist "%LogPath%\" (
    mkdir "%LogPath%"
 )
 
-if exist "%LogPath%\CheckLog.txt" (
-   del "%LogPath%\CheckLog.txt"
+if exist "%LogPathFull%" (
+   del "%LogPathFull%"
 )
 exit /b
 
@@ -37,7 +38,7 @@ exit /b
 cd %SourcePath%
 for /f "tokens=*" %%l in ('findstr /s /i /m /c:"#pragma optimize" *.*') do (
    echo #pragma optimize found in: %%l
-   echo #pragma optimize found in: %%l >> "%LogPath%\CheckLog.txt"
+   echo #pragma optimize found in: %%l >> "%LogPathFull%"
    start %%l
    goto :eof
 )
