@@ -1,8 +1,15 @@
 @echo off
 :: Set current directory to the one specified if one is provided
 set CurrentDirectory=%1
+set CurrentDirectory=%CurrentDirectory:"=%
 if "%1"=="" (
-   set CurrentDirectory=%~pd0..\
+   set CurrentDirectory=%~pd0..\..\
+)
+
+set SettingsPath=%2
+set SettingsPath=%SettingsPath:"=%
+if "%2"=="" (
+   set SettingsPath=%~pd0..\Settings\default-settings.properties
 )
 
 :: Find Project Name

@@ -1,22 +1,68 @@
-@echo offtxt
+@echo off
 
 :: Set current directory to the one specified if one is provided
-set CurrentDirectory=%1
-if "%1"=="" (
+set CurrentDirectory=%~1
+if "%~1"=="" (
    set CurrentDirectory=%~pd0..\..\
 )
 
-set SettingsPath=%2
-if "%2"=="" (
+:: Set the settings path to the one specified if one is provided
+set SettingsPath=%~2
+if "%~2"=="" (
    set SettingsPath=%~pd0..\Settings\default-settings.properties
 )
 
+set LogPath=%~pd0..\Logs
+set LogPathFull=%LogPath%\CleanLog.txt
+call :CreateLog
+
 echo Getting settings from properties file...
 echo Getting settings from properties file... >> "%LogPathFull%"
+call :PrintDividerSmall
+call :SetupEnvironmentVariables
+call :DisplayEnvironmentVariables
+
+call :PrintDivider
+
+call :SaveConfigFiles
+call :CleanFiles
+
+call :PrintDivider
+
+call :ProjectGeneration
+call :OpenVisualStudio
+call :BuildEditor
+call :EndProgramWait
+goto :eof
+
+
+
+
+:CreateLog
+if exist "%LogPath%\" (
+   echo Log folder already exists
+) else (
+   mkdir "%LogPath%"
+)
+
+if exist "%LogPathFull%" (
+   del "%LogPathFull%"
+)
+exit /b
+
+
+:PrintDivider
+echo ----------------------------------------------------------------------------------------------
+echo ---------------------------------------------------------------------------------------------- >> "%LogPathFull%"
+exit /b
+
+:PrintDividerSmall
 echo -------------------
 echo ------------------- >> "%LogPathFull%"
+exit /b
 
-:: Parse members of the properties file
+
+:SetupEnvironmentVariables
 for /F "tokens=2 delims==" %%a in ('findstr /I "UnrealEnginePath=" "%SettingsPath%"') do set UnrealEnginePath=%%a
 for /F "tokens=2 delims==" %%a in ('findstr /I "WaitOnEnd=" "%SettingsPath%"') do set WaitOnEnd=%%a
 for /F "tokens=2 delims==" %%a in ('findstr /I "AutoOpenSolution=" "%SettingsPath%"') do set AutoOpenSolution=%%a
@@ -36,9 +82,16 @@ if "%UnrealVersion:~0,1%"=="_" (
    set UnrealVersion=%UnrealEnginePath:~-3%
 )
 
-set LogPath=%~pd0..\Logs
-set LogPathFull=LogPath\CleanLog.txt
+set BuildConfiguration=Development Editor
+set EditorConfigStoragePath=%~pd0..\Config
+set EditorConfigPath=%CurrentDirectory%\Saved\Config\WindowsEditor
+if "%UnrealVersion:~0,1%"=="4" (
+   set EditorConfigPath=%CurrentDirectory%\Saved\Config\Windows
+)
+exit /b
 
+
+:DisplayEnvironmentVariables
 echo Found Unreal Project: %ProjectName%
 echo Found Unreal Project: %ProjectName% >> "%LogPathFull%"
 echo Unreal Version Detected: %UnrealVersion%
@@ -61,27 +114,29 @@ echo AutoBuildEditor: %AutoBuildEditor%
 echo AutoBuildEditor: %AutoBuildEditor% >> "%LogPathFull%"
 echo SaveEditorConfigs: %SaveEditorConfigs%
 echo SaveEditorConfigs: %SaveEditorConfigs% >> "%LogPathFull%"
+exit /b
 
 
-set BuildConfiguration=Development Editor
-set EditorConfigStoragePath="%~pd0..\Config"
-set EditorConfigPath="%CurrentDirectory%.\Saved\Config\WindowsEditor"
-if "%UnrealVersion:~0,1%"=="4" (
-   set EditorConfigPath="%CurrentDirectory%.\Saved\Config\Windows"
-)
-
-echo ----------------------------------------------------------------------------------------------
-echo ---------------------------------------------------------------------------------------------- >> "%LogPathFull%"
-
-
-:: Clean folders for proper regeneration
+:SaveConfigFiles
 if "%SaveEditorConfigs%"=="true" (
-   mkdir %EditorConfigStoragePath%
+   mkdir "%EditorConfigStoragePath%"
    move "%EditorConfigPath%\SourceControlSettings.ini" "%EditorConfigStoragePath%\SourceControlSettings.ini"
    move "%EditorConfigPath%\DefaultEditor.ini" "%EditorConfigStoragePath%\DefaultEditor.ini"
    move "%EditorConfigPath%\EditorPerProjectUserSettings.ini" "%EditorConfigStoragePath%\EditorPerProjectUserSettings.ini"
 )
+exit /b
 
+:RestoreConfigFiles
+if "%SaveEditorConfigs%"=="true" (
+   mkdir "%EditorConfigPath%"
+   move "%EditorConfigStoragePath%.\SourceControlSettings.ini" "%EditorConfigPath%.\SourceControlSettings.ini"
+   move "%EditorConfigPath%.\DefaultEditor.ini" "%EditorConfigStoragePath%.\DefaultEditor.ini"
+   move "%EditorConfigStoragePath%.\EditorPerProjectUserSettings.ini" "%EditorConfigPath%.\EditorPerProjectUserSettings.ini"
+   rmdir "%EditorConfigStoragePath%"
+)
+exit /b
+
+:CleanFiles
 echo Deleting saved folder
 echo Deleting saved folder >> "%LogPathFull%"
 rmdir /S /Q %CurrentDirectory%.\Saved
@@ -115,11 +170,10 @@ del /F /Q %CurrentDirectory%.\*.DotSettings.user
 
 echo Cleanup complete
 echo Cleanup complete >> "%LogPathFull%"
+exit /b
 
-echo ----------------------------------------------------------------------------------------------
-echo ---------------------------------------------------------------------------------------------- >> "%LogPathFull%"
 
-:: Generate project files
+:ProjectGeneration
 echo Generating project files...
 echo Generating project files... >> "%LogPathFull%"
 echo -------------------
@@ -130,7 +184,10 @@ if "%UnrealVersion:~0,1%"=="4" (
 )
 
 "%BuildToolPath%" -ProjectFiles -Game "%CurrentDirectory%.\%ProjectName%.uproject"
+exit /b
 
+
+:OpenVisualStudio
 if "%AutoOpenSolution%"=="true" (
    echo Opening the generated project...
    echo Opening the generated project... >> "%LogPathFull%"
@@ -138,27 +195,26 @@ if "%AutoOpenSolution%"=="true" (
    echo ------------------- >> "%LogPathFull%"
    cmd /c "start %CurrentDirectory%.\%ProjectName%.sln"
 )
+exit /b
 
+
+:BuildEditor
 if "%AutoBuildEditor%"=="true" (
    echo Building solution...
    echo Building solution... >> "%LogPathFull%"
-   echo -------------------
-   echo ------------------- >> "%LogPathFull%"
+   call :PrintDividerSmall
    
    "%ProgramFiles%\Microsoft Visual Studio\%VisualStudioYear%\%VisualStudioEdition%\MSBuild\Current\Bin\MSBuild.exe" "%CurrentDirectory%.\%ProjectName%.sln" "/p:Configuration=Development Editor" "/p:Platform=Win64"
-   if "%SaveEditorConfigs%"=="true" (
-      mkdir "%EditorConfigPath%"
-      move "%EditorConfigStoragePath%\SourceControlSettings.ini" "%EditorConfigPath%\SourceControlSettings.ini"
-   move "%EditorConfigPath%\DefaultEditor.ini" "%EditorConfigStoragePath%\DefaultEditor.ini"
-      move "%EditorConfigStoragePath%\EditorPerProjectUserSettings.ini" "%EditorConfigPath%\EditorPerProjectUserSettings.ini"
-   )
-
+   call :RestoreConfigFiles
    if "%AutoOpenEditor%"=="true" (
       cmd /c start /wait "" "%CurrentDirectory%.\%ProjectName%.uproject"
    )
 )
+exit /b
 
 
+:EndProgramWait
 if "%WaitOnEnd%"=="true" (
    pause
 )
+exit /b

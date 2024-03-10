@@ -1,6 +1,6 @@
 # Unreal Project Tools
 
-## Build Tool
+## Build Tool (clean-project.bat)
 
 To use this batch file correctly, place the folder from inside the zip into the root of your Unreal Project.
 
@@ -13,12 +13,14 @@ To use this batch file correctly, place the folder from inside the zip into the 
 
 - There is an optional property, WaitOnEnd included in the properties file. It is set to true by default, but if you don't want the batch to pause upon completion you can set this to false.
 
-### Notes
+### Build Tool Notes
 
 - Alternatively you can call the script from another location and pass in the folder containing the project as the first parameter via command line or another batch script. (This can be useful if you want to use it in multiple projects without having to manage it in many places)
 - Passing in a path to a settings file as the second parameter allows variant settings to be used. Examples of this can be found in `.\Scripts\Variant Scripts\`. Note that the scripts themselves are still designed to take the first parameter in to allow them to be used in other locations.
 
-## Submission Check Notes
+## Submission Check (check-submission.bat)
+
+### Submission Check Notes
 
 - The submission check script currently only runs through the Visual Studio project which has a matching name with the project.
 - It currently searches for any occurences of pragma optimize, opening any files it finds containing it, and closing itself afterward.
@@ -27,3 +29,8 @@ To use this batch file correctly, place the folder from inside the zip into the 
 
 - Any logs created by the scripts can be found in the `.\Logs\` folder.
 - By default the folder containing this README and other folders should be placed in the root of your project.
+
+## Planned Changes
+
+- Add indications of or find ways to log other script's output to log files.
+- Variant build scripts.
