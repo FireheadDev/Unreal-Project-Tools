@@ -1,14 +1,12 @@
 @echo off
 :: Set current directory to the one specified if one is provided
-set CurrentDirectory=%1
-set CurrentDirectory=%CurrentDirectory:"=%
-if "%1"=="" (
+set CurrentDirectory=%~1
+if "%~1"=="" (
    set CurrentDirectory=%~pd0..\..\
 )
 
-set SettingsPath=%2
-set SettingsPath=%SettingsPath:"=%
-if "%2"=="" (
+set SettingsPath=%~2
+if "%~2"=="" (
    set SettingsPath=%~pd0..\Settings\default-settings.properties
 )
 
@@ -17,7 +15,7 @@ for %%i in (%CurrentDirectory%..\*) do (
    if "%%~xi"==".uproject" set ProjectName=%%~ni
 )
 
-set SourcePath=%CurrentDirectory%..\Source\%ProjectName%
+set SourcePath=%CurrentDirectory%\Source\%ProjectName%
 set LogPath=%~pd0..\Logs
 set LogPathFull=LogPath\CheckLog.txt
 
