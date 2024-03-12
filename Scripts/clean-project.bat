@@ -73,7 +73,7 @@ for /F "tokens=2 delims==" %%a in ('findstr /I "VisualStudioYear=" "%SettingsPat
 for /F "tokens=2 delims==" %%a in ('findstr /I "VisualStudioEdition=" "%SettingsPath%"') do set VisualStudioEdition=%%a
 
 :: Find Project Name
-for %%i in (%CurrentDirectory%.\*) do (
+for %%i in (%CurrentDirectory%\*) do (
    if "%%~xi"==".uproject" set ProjectName=%%~ni
 )
 
@@ -129,9 +129,9 @@ exit /b
 :RestoreConfigFiles
 if "%SaveEditorConfigs%"=="true" (
    mkdir "%EditorConfigPath%"
-   move "%EditorConfigStoragePath%.\SourceControlSettings.ini" "%EditorConfigPath%.\SourceControlSettings.ini"
-   move "%EditorConfigPath%.\DefaultEditor.ini" "%EditorConfigStoragePath%.\DefaultEditor.ini"
-   move "%EditorConfigStoragePath%.\EditorPerProjectUserSettings.ini" "%EditorConfigPath%.\EditorPerProjectUserSettings.ini"
+   move "%EditorConfigStoragePath%\SourceControlSettings.ini" "%EditorConfigPath%\SourceControlSettings.ini"
+   move "%EditorConfigPath%\DefaultEditor.ini" "%EditorConfigStoragePath%\DefaultEditor.ini"
+   move "%EditorConfigStoragePath%\EditorPerProjectUserSettings.ini" "%EditorConfigPath%\EditorPerProjectUserSettings.ini"
    rmdir "%EditorConfigStoragePath%"
 )
 exit /b
@@ -139,34 +139,34 @@ exit /b
 :CleanFiles
 echo Deleting saved folder
 echo Deleting saved folder >> "%LogPathFull%"
-rmdir /S /Q %CurrentDirectory%.\Saved
+rmdir /S /Q %CurrentDirectory%\Saved
 
 echo Deleting binaries folder
 echo Deleting binaries folder >> "%LogPathFull%"
-rmdir /S /Q %CurrentDirectory%.\Binaries
+rmdir /S /Q %CurrentDirectory%\Binaries
 
 echo Deleting intermediate folder
 echo Deleting intermediate folder >> "%LogPathFull%"
-rmdir /S /Q %CurrentDirectory%.\Intermediate
+rmdir /S /Q %CurrentDirectory%\Intermediate
 
 echo Deleting editor folders
 echo Deleting editor folders >> "%LogPathFull%"
-rmdir /S /Q %CurrentDirectory%.\.idea
-rmdir /S /Q %CurrentDirectory%.\.vs
+rmdir /S /Q %CurrentDirectory%\.idea
+rmdir /S /Q %CurrentDirectory%\.vs
 
 echo Deleting platforms folder
 echo Deleting platforms folder >> "%LogPathFull%"
-rmdir /S /Q %CurrentDirectory%.\Platforms
+rmdir /S /Q %CurrentDirectory%\Platforms
 
 echo Deleting derived data cache
 echo Deleting derived data cache >> "%LogPathFull%"
-rmdir /S /Q %CurrentDirectory%.\DerivedDataCache
+rmdir /S /Q %CurrentDirectory%\DerivedDataCache
 
 echo Deleting solution
 echo Deleting solution >> "%LogPathFull%"
-del /F /Q %CurrentDirectory%.\*.vsconfig
-del /F /Q %CurrentDirectory%.\*.sln
-del /F /Q %CurrentDirectory%.\*.DotSettings.user
+del /F /Q %CurrentDirectory%\*.vsconfig
+del /F /Q %CurrentDirectory%\*.sln
+del /F /Q %CurrentDirectory%\*.DotSettings.user
 
 echo Cleanup complete
 echo Cleanup complete >> "%LogPathFull%"
@@ -183,7 +183,7 @@ if "%UnrealVersion:~0,1%"=="4" (
    set "BuildToolPath=%UnrealEnginePath%\Engine\Binaries\DotNET\UnrealBuildTool.exe"
 )
 
-"%BuildToolPath%" -ProjectFiles -Game "%CurrentDirectory%.\%ProjectName%.uproject"
+"%BuildToolPath%" -ProjectFiles -Game "%CurrentDirectory%\%ProjectName%.uproject"
 exit /b
 
 
@@ -193,7 +193,7 @@ if "%AutoOpenSolution%"=="true" (
    echo Opening the generated project... >> "%LogPathFull%"
    echo -------------------
    echo ------------------- >> "%LogPathFull%"
-   cmd /c "start %CurrentDirectory%.\%ProjectName%.sln"
+   cmd /c "start %CurrentDirectory%\%ProjectName%.sln"
 )
 exit /b
 
@@ -204,10 +204,10 @@ if "%AutoBuildEditor%"=="true" (
    echo Building solution... >> "%LogPathFull%"
    call :PrintDividerSmall
    
-   "%ProgramFiles%\Microsoft Visual Studio\%VisualStudioYear%\%VisualStudioEdition%\MSBuild\Current\Bin\MSBuild.exe" "%CurrentDirectory%.\%ProjectName%.sln" "/p:Configuration=Development Editor" "/p:Platform=Win64"
+   "%ProgramFiles%\Microsoft Visual Studio\%VisualStudioYear%\%VisualStudioEdition%\MSBuild\Current\Bin\MSBuild.exe" "%CurrentDirectory%\%ProjectName%.sln" "/p:Configuration=Development Editor" "/p:Platform=Win64"
    call :RestoreConfigFiles
    if "%AutoOpenEditor%"=="true" (
-      cmd /c start /wait "" "%CurrentDirectory%.\%ProjectName%.uproject"
+      cmd /c start /wait "" "%CurrentDirectory%\%ProjectName%.uproject"
    )
 )
 exit /b
