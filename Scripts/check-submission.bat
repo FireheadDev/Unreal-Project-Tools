@@ -17,10 +17,14 @@ for %%i in (%CurrentDirectory%..\*) do (
 
 set SourcePath=%CurrentDirectory%\Source\%ProjectName%
 set LogPath=%~pd0..\Logs
-set LogPathFull=LogPath\CheckLog.txt
+set LogPathFull=%LogPath%\CheckLog.txt
 
 call :CreateLog
+
+set ChangelistNamePragmaOptimize=FIX: pragma optimize
+set ChangeListMadePragmaOptimize=false
 call :PragmaOptimizeCheck
+
 goto :eof
 
 
@@ -38,13 +42,41 @@ if exist "%LogPathFull%" (
 )
 exit /b
 
-
 :PragmaOptimizeCheck
+
 cd %SourcePath%
 for /f "tokens=*" %%l in ('findstr /s /i /m /c:"#pragma optimize" *.*') do (
-   echo #pragma optimize found in: %%l
-   echo #pragma optimize found in: %%l >> "%LogPathFull%"
+   setlocal enabledelayedexpansion
+   set CurrentCheckFile=%%l
+   echo #pragma optimize found in: !CurrentCheckFile!
+   echo #pragma optimize found in: !CurrentCheckFile! >> "%LogPathFull%"
+
+   call :HandlePragmaOptimizeFound
    start %%l
-   goto :eof
 )
+
+if "%ChangeListMadePragmaOptimize%"=="true" (
+   p4 submit -c %ChangeListID%
+)
+exit /b
+
+:CreateChangelistPragmaOptimize
+   set ChangeListMadePragmaOptimize=true
+   p4 --field Description="%ChangeListNamePragmaOptimize%" change -o | p4 change -i
+   p4 changes -u jwmcconnell -m1>"%LogPath%\temp.txt"
+   set /p ChangeListID=<"%LogPath%\temp.txt"
+   for /f "delims=Change " %%c in ("%ChangeListID%") do (
+      set ChangeListID=%%c
+   )
+exit /b
+
+:HandlePragmaOptimizeFound
+if "%ChangeListMadePragmaOptimize%"=="false" (
+   call :CreateChangelistPragmaOptimize
+)
+
+p4 edit -c "%ChangeListID%" "!CurrentCheckFile!"
+findstr /v "#pragma optimize" "!CurrentCheckFile!" > "%LogPath%\temp.txt"
+type "%LogPath%\temp.txt" > "!CurrentCheckFile!"
+del "%LogPath%\temp.txt"
 exit /b
