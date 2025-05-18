@@ -73,8 +73,8 @@ for /F "tokens=2 delims==" %%a in ('findstr /I "VisualStudioYear=" "%SettingsPat
 for /F "tokens=2 delims==" %%a in ('findstr /I "VisualStudioEdition=" "%SettingsPath%"') do set VisualStudioEdition=%%a
 
 :: Find Project Name
-for %%i in (%CurrentDirectory%\*) do (
-   if "%%~xi"==".uproject" set ProjectName=%%~ni
+for %%i in ("%CurrentDirectory%\*") do (
+   if "%%~xi"==".uproject" set "ProjectName=%%~ni"
 )
 
 set UnrealVersion=%UnrealEnginePath:~-4%
@@ -139,34 +139,34 @@ exit /b
 :CleanFiles
 echo Deleting saved folder
 echo Deleting saved folder >> "%LogPathFull%"
-rmdir /S /Q %CurrentDirectory%\Saved
+rmdir /S /Q "%CurrentDirectory%\Saved"
 
 echo Deleting binaries folder
 echo Deleting binaries folder >> "%LogPathFull%"
-rmdir /S /Q %CurrentDirectory%\Binaries
+rmdir /S /Q "%CurrentDirectory%\Binaries"
 
 echo Deleting intermediate folder
 echo Deleting intermediate folder >> "%LogPathFull%"
-rmdir /S /Q %CurrentDirectory%\Intermediate
+rmdir /S /Q "%CurrentDirectory%\Intermediate"
 
 echo Deleting editor folders
 echo Deleting editor folders >> "%LogPathFull%"
-rmdir /S /Q %CurrentDirectory%\.idea
-rmdir /S /Q %CurrentDirectory%\.vs
+rmdir /S /Q "%CurrentDirectory%\.idea"
+rmdir /S /Q "%CurrentDirectory%\.vs"
 
 echo Deleting platforms folder
 echo Deleting platforms folder >> "%LogPathFull%"
-rmdir /S /Q %CurrentDirectory%\Platforms
+rmdir /S /Q "%CurrentDirectory%\Platforms"
 
 echo Deleting derived data cache
 echo Deleting derived data cache >> "%LogPathFull%"
-rmdir /S /Q %CurrentDirectory%\DerivedDataCache
+rmdir /S /Q "%CurrentDirectory%\DerivedDataCache"
 
 echo Deleting solution
 echo Deleting solution >> "%LogPathFull%"
-del /F /Q %CurrentDirectory%\*.vsconfig
-del /F /Q %CurrentDirectory%\*.sln
-del /F /Q %CurrentDirectory%\*.DotSettings.user
+del /F /Q "%CurrentDirectory%\*.vsconfig"
+del /F /Q "%CurrentDirectory%\*.sln"
+del /F /Q "%CurrentDirectory%\*.DotSettings.user"
 
 echo Cleanup complete
 echo Cleanup complete >> "%LogPathFull%"
