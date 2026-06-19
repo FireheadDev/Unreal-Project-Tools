@@ -1,6 +1,7 @@
 # Unreal Project Tools
 <img width="1734" height="927" alt="image" src="https://github.com/user-attachments/assets/740008cf-b011-49c8-8e46-45609e9a0abc" />
--# _Example output with basic message highlighting_
+###### _Example output with basic message highlighting_
+
 ## Build Tool (clean-project.bat)
 
 To use this batch file correctly, place the folder from inside the zip into the root of your Unreal Project.
